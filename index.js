@@ -1,18 +1,13 @@
 import express from "express";
+import usuarioRoutes from "./routes/usuarioRoutes.js";
 
-// Crear app
 const app = express();
 
-// Routing
-app.get("/", function (req, res) {
-  res.send("hola mundo en express");
-});
+app.set("view engine", "pug");
+app.set("views", "./views");
 
-app.get("/nosotros", function (req, res) {
-  res.send("informacion de nosotros");
-});
+app.use("/auth", usuarioRoutes);
 
-// Definir puerto y arrancar el proyecto
 const port = 3000;
 app.listen(port, () => {
   console.log(`Servidor funcionando en el puerto ${port}`);
