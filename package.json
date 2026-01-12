@@ -23,8 +23,11 @@
   },
   "homepage": "https://github.com/agustinbriozzo/bienes-raices#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "pug": "^3.0.3"
+    "mysql2": "^3.16.0",
+    "pug": "^3.0.3",
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.18",
