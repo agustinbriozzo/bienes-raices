@@ -27,7 +27,11 @@ const Usuario = db.define(
         usuario.password = await bcrypt.hash(usuario.password, salt);
       },
     },
-  }
+  },
 );
+
+Usuario.prototype.verificarPassword = function (password) {
+  return bcrypt.compareSync(password, this.password);
+};
 
 export default Usuario;

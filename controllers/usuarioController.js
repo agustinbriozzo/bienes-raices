@@ -1,13 +1,78 @@
 import { check, validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import Usuario from "../models/Usuario.js";
-import { generarId } from "../helpers/tokens.js";
+import { generarJWT, generarId } from "../helpers/tokens.js";
 import { emailRegistro, emailOlvidePassword } from "../helpers/emails.js";
 
 const formularioLogin = (req, res) => {
   res.render("auth/login", {
     pagina: "Iniciar Sesión",
+    csrfToken: req.csrfToken(),
   });
+};
+
+const autenticar = async (req, res) => {
+  await check("email")
+    .isEmail()
+    .withMessage("El Email es obligatorio")
+    .run(req);
+
+  await check("password")
+    .notEmpty()
+    .withMessage("La contraseña es obligatoria")
+    .run(req);
+
+  let resultado = validationResult(req);
+
+  // Verificar que el resultado este vacío
+  if (!resultado.isEmpty()) {
+    return res.render("auth/login", {
+      pagina: "Iniciar Sesión",
+      csrfToken: req.csrfToken(),
+      errores: resultado.array(),
+    });
+  }
+
+  const { email, password } = req.body;
+  // Comprobar si existe el usuario
+  const usuario = await Usuario.findOne({ where: { email } });
+  if (!usuario) {
+    return res.render("auth/login", {
+      pagina: "Iniciar Sesión",
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: "El usuario no existe" }],
+    });
+  }
+
+  // Comprobar si el usuario esta confirmado
+  if (!usuario.confirmado) {
+    return res.render("auth/login", {
+      pagina: "Iniciar Sesión",
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: "Tu cuenta no fue confirmada" }],
+    });
+  }
+
+  // Revisar el password
+  if (!usuario.verificarPassword(password)) {
+    return res.render("auth/login", {
+      pagina: "Iniciar Sesión",
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: "La contraseña es incorrecta" }],
+    });
+  }
+
+  // Autenticar al usuario
+  const token = generarJWT({ id: usuario.id, nombre: usuario.nombre });
+
+  // Almacenar token en una cookie
+  return res
+    .cookie("_token", token, {
+      httpOnly: true,
+      //secure: true,
+      //sameSite: true,
+    })
+    .redirect("/mis-propiedades");
 };
 
 const formularioRegistro = (req, res) => {
@@ -222,6 +287,7 @@ const nuevoPassword = async (req, res) => {
 
 export {
   formularioLogin,
+  autenticar,
   formularioRegistro,
   registrar,
   verificar,
