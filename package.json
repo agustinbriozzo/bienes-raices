@@ -8,7 +8,11 @@
     "start": "node ./index.js",
     "server": "nodemon ./index.js",
     "css": "npx @tailwindcss/cli -i ./public/css/tailwind.css -o ./public/css/app.css --watch",
-    "build:css": "npx @tailwindcss/cli -i ./public/css/tailwind.css -o ./public/css/app.css"
+    "build:css": "npx @tailwindcss/cli -i ./public/css/tailwind.css -o ./public/css/app.css",
+    "js": "webpack --watch",
+    "dev": "concurrently \"npm run css\" \"npm run js\"",
+    "db:importar": "node ./seed/seeder.js -i",
+    "db:eliminar": "node ./seed/seeder.js -e"
   },
   "repository": {
     "type": "git",
@@ -37,7 +41,10 @@
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.18",
+    "concurrently": "^10.0.0",
     "nodemon": "^3.1.11",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "webpack": "^5.107.2",
+    "webpack-cli": "^7.0.3"
   }
 }
